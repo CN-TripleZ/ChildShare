@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>棣栭〉</title>
+<title>首页</title>
 	<link rel="stylesheet" href="../css/jquery.mobile-1.1.0.css" />
 	<script type="text/javascript" src="../js/cordova-1.7.0rc1.js"></script>
 	<script type="text/javascript" src="../js/jquery-1.7.2.js"></script>
@@ -11,19 +11,45 @@
 		var pictureSource,destinationType;
 		function init() {
     		document.addEventListener("deviceready", onDeviceReady, true);
+    		showList();
 		}
 		var onDeviceReady = function() {
 			pictureSource=navigator.camera.PictureSourceType;  
         	destinationType=navigator.camera.DestinationType;  
 		}
+		
+		function getInfo(data) {
+			var listHtml = [];
+			for (var i = 0; i < data.length; i++) {
+				var itemHtml = "";
+				var desc = data[i].description;
+				var src = data[i].path;
+				var upload_time = data[i].upload_time;
+				if ( i % 2 == 0) {
+					itemHtml = '<div class="item_even"><ul><li><img src="' + src + '"></img></li><li class="text">' + upload_time + '<br/>' + desc + '</li></ul></div>';
+				} else {
+		    		itemHtml = '<div class="item_odd"><ul><li class="text">' + upload_time + '<br/>' + desc + '</li><li><img src="' + src + '"></img></li></ul></div>';
+				}
+			    listHtml.push(itemHtml);
+			}
+			$(".list").html(listHtml.join(''));
+		}
+		
+		var showList = function() {
+			$.getScript("http://192.168.1.35:8080/child_share/ImageServlet?cmd=query&userId=haiyuchen").error(function(){
+				$(".list").html("服务器繁忙，请稍后重试！");
+			});
+		}
+		
 		var capturePhoto = function() {
 			//navigator.camera.getPicture(onPhotoDataSuccess, onFail, { quality: 50 });  
-			navigator.camera.getPicture(onPhotoURISuccess, onFail, { quality: 50, destinationType: Camera.DestinationType.FILE_URI });
+			navigator.camera.getPicture(onPhotoURISuccess, onFail, { quality: 50, destinationType: destinationType.FILE_URI });
 		}
 		function onPhotoURISuccess(imageURI) {  
     		var image = document.getElementById('photo');  
 			image.style.display = 'block'; 
-    		image.src = imageURI;  
+    		image.src = imageURI; 
+			uploadPhoto(imageURI);
 		}  
 		var onPhotoDataSuccess = function(imageData) {  
 	        var image = document.getElementById('photo');  
@@ -31,30 +57,83 @@
 	        image.src = "data:image/jpeg;base64," + imageData;  
     	}
 		var onFail = function(message) {
-			alert('Failed because: ' + message); 
+			console.error("An error has occurred while capture one photo. [ " + message + "]");
 		}  
+        function uploadPhoto(imageURI){
+            var options = new FileUploadOptions();
+            options.fileKey = "file";
+            options.fileName = imageURI.substr(imageURI.lastIndexOf('/') + 1);
+            options.mimeType = "image/jpeg";
+            var params = new Object();
+            params.value1 = "photo";
+            params.value2 = "描述";
+            
+            options.params = params;
+            
+            var ft = new FileTransfer();
+            ft.upload(imageURI, "http://192.168.1.35:8080/child_share/ImageServlet?cmd=add", onPhotoUploadSuccess, onPhotoUploadFail, options);
+        }
+        var onPhotoUploadSuccess = function(r){
+            console.log("Code = " + r.responseCode);
+            console.log("Response = " + r.response);
+            console.log("Sent = " + r.bytesSent);
+        }
+        var onPhotoUploadFail = function(error){
+            console.error("An error has occurred while photo upload. The error code = " + error.code);
+        }
 	</script>
+	<style type="text/css">
+	    body {
+	        padding:0px;
+	        margin: 0px;
+	        font-family: "微软雅黑";
+			font-size: 12px;
+	    }
+	    .list div {
+	        width: 300px;
+	        height: 210px;
+	    }
+	    .list div ul {
+	        width: 300px;
+	        height: 200px;
+	        padding: 0px;
+	        margin-top: 3px;        
+	    }
+	    .list div ul li{
+	        list-style-type: none;
+	        float: left;
+	    }
+	    .list div ul li.text{
+	        width: 92px;
+	        border-left:4px solid #3ddfdf;
+	        margin-left: 2px;
+	    }
+	    .list img {
+	        width: 200px;
+	    }
+	</style>
+	
 </head>
 <body onload="init();">
 <div data-role="page">
 
 	<div data-role="header" data-theme="b">
-		<h1>浜插瓙鍗疯酱</h1>
+		<h1>亲子卷轴</h1>
 	</div><!-- /header -->
 
 	<div data-role="content" data-theme="b">	
-		<img style="display:none;width:100;height:100px;" id="photo" src="" />  
+		<img style="display:none;width:100;height:100px;" id="photo" src="" /> 
+		<div class="list"></div> 
 		<div id="log"></div>
 	</div><!-- /content -->
-
 	<div data-role="footer" data-theme="b">
 		<div data-role="navbar">
 			<ul>
-				<li><a href="#">鑿滃崟1</a></li>
-				<li><a href="#">鑿滃崟2</a></li>
-				<li><a href="#" onclick="capturePhoto()">鎷嶇収</a></li>
-				<li><a href="#">鑿滃崟3</a></li>
-				<li><a href="#">鑿滃崟4</a></li>
+				<li><a href="#" onclick="showList();" class="ui-btn-active">首页</a></li>
+				<li><a href="#">热门</a></li>
+				<li><a href="#" onclick="capturePhoto()">拍照</a></li>
+				<li><a href="#">消息</a></li>
+				<li><a href="#">个人</a></li>
 			</ul>
 		</div><!-- /navbar -->
 	</div><!-- /footer -->
