@@ -32,12 +32,12 @@
 				}
 			    listHtml.push(itemHtml);
 			}
-			$(".list").html(listHtml.join(''));
+			$("#list").html(listHtml.join(''));
 		}
 		
 		var showList = function() {
 			$.getScript("http://192.168.1.35:8080/child_share/ImageServlet?cmd=query&userId=haiyuchen").error(function(){
-				$(".list").html("服务器繁忙，请稍后重试！");
+				$("#list").html("服务器繁忙，请稍后重试！");
 			});
 		}
 		
@@ -46,10 +46,14 @@
 			navigator.camera.getPicture(onPhotoURISuccess, onFail, { quality: 50, destinationType: destinationType.FILE_URI });
 		}
 		function onPhotoURISuccess(imageURI) {  
-    		var image = document.getElementById('photo');  
-			image.style.display = 'block'; 
-    		image.src = imageURI; 
-			uploadPhoto(imageURI);
+    		var photoDiv = $('#photoDiv');  
+			var html = "";
+			html += '<input type="text" id="photo" value="' + imageURI + '"></input>';
+			html += '<img src="' + imageURI + '" width="50px;" height="100px;"></img>';
+			html += '<textarea name="textarea" id="description"></textarea>';
+			html += '<a href="#" data-role="button" onclick="uploadPhoto()">上传</a>';
+			photoDiv.html(html);
+			//uploadPhoto(imageURI);
 		}  
 		var onPhotoDataSuccess = function(imageData) {  
 	        var image = document.getElementById('photo');  
@@ -59,7 +63,8 @@
 		var onFail = function(message) {
 			console.error("An error has occurred while capture one photo. [ " + message + "]");
 		}  
-        function uploadPhoto(imageURI){
+        function uploadPhoto(){
+			var imageURI = $("#photo").val();
             var options = new FileUploadOptions();
             options.fileKey = "file";
             options.fileName = imageURI.substr(imageURI.lastIndexOf('/') + 1);
@@ -82,6 +87,29 @@
         var onPhotoUploadFail = function(error){
             console.error("An error has occurred while photo upload. The error code = " + error.code);
         }
+        
+        
+        // -------------------------------------------------- 登录 --------------------------------------------------
+        function login() {
+        	var params = {};
+    		params["id"] = $("#id_login").val();
+    		params["password"] = $("#password_login").val();
+    		params["cmd"] = "query";
+    		$.ajax({
+    			url: "http://haiyupeter.gicp.net:8080/child_share/UserServlet",
+    			data: params,
+    			dataType: 'script'
+			}).success(function(data){
+			});
+        }
+        
+        var getUserInfo = function (data) {
+        	// do something when login success
+			alert(data.id);
+			alert(data.name);
+    	}
+        
+        // -------------------------------------------------- 注册 --------------------------------------------------
 	</script>
 	<style type="text/css">
 	    body {
@@ -112,22 +140,44 @@
 	    .list img {
 	        width: 200px;
 	    }
+	    
+	    .username{
+		    background-image:url(images/username.gif);
+			background-position: 1px 1px;
+			background-repeat:no-repeat;
+			padding-left:20px;
+			height:20px;
+			FONT-SIZE: 12px;}
+		.password{
+		    background-image:url(images/password.gif);
+			background-position: 1px 1px;
+			background-repeat:no-repeat;
+			padding-left:20px;
+			height:20px;
+			FONT-SIZE: 12px;}
 	</style>
 	
 </head>
 <body onload="init();">
 <div data-role="page">
 
-	<div data-role="header" data-theme="b">
+	<div data-role="header" data-theme="b" data-position="fixed">
 		<h1>亲子卷轴</h1>
 	</div><!-- /header -->
 
 	<div data-role="content" data-theme="b">	
-		<img style="display:none;width:100;height:100px;" id="photo" src="" /> 
-		<div class="list"></div> 
-		<div id="log"></div>
+		<div id="list" class="list"></div> 
+		<div id="photoDiv"></div>
+		<div id="login" class="list">
+			账号:<input id="id_login" name="id" class="username" type="text" onkeyup="if(event.keyCode===13){sub();}"/><br/>
+			密码:<input id="password_login" name="password" type="password" class="password" onkeyup="if(event.keyCode===13){sub();}"/><br/>
+			<input name="submit" type="button" onclick="sub();return false;" value="提交"></input>
+		</div>
+		<div id="register" class="list">
+			
+		</div>
 	</div><!-- /content -->
-	<div data-role="footer" data-theme="b">
+	<div data-role="footer" data-theme="b" data-position="fixed">
 		<div data-role="navbar">
 			<ul>
 				<li><a href="#" onclick="showList();" class="ui-btn-active">首页</a></li>
