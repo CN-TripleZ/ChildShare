@@ -11,7 +11,7 @@
 		var pictureSource,destinationType;
 		function init() {
     		document.addEventListener("deviceready", onDeviceReady, true);
-    		showList();
+    		//showList();
 		}
 		var onDeviceReady = function() {
 			pictureSource=navigator.camera.PictureSourceType;  
@@ -36,7 +36,9 @@
 		}
 		
 		var showList = function() {
-			$.getScript("http://192.168.1.35:8080/child_share/ImageServlet?cmd=query&userId=haiyuchen").error(function(){
+			$("#content div").hide();
+			$("#list").show();
+			$.getScript("http://haiyupeter.gicp.net:8080/child_share/ImageServlet?cmd=query&userId=haiyuchen").error(function(){
 				$("#list").html("服务器繁忙，请稍后重试！");
 			});
 		}
@@ -77,7 +79,7 @@
             options.params = params;
             
             var ft = new FileTransfer();
-            ft.upload(imageURI, "http://192.168.1.35:8080/child_share/ImageServlet?cmd=add", onPhotoUploadSuccess, onPhotoUploadFail, options);
+            ft.upload(imageURI, "http://haiyupeter.gicp.net:8080/child_share/ImageServlet?cmd=add", onPhotoUploadSuccess, onPhotoUploadFail, options);
         }
         var onPhotoUploadSuccess = function(r){
             console.log("Code = " + r.responseCode);
@@ -90,6 +92,11 @@
         
         
         // -------------------------------------------------- 登录 --------------------------------------------------
+        var goLogin = function() {
+        	$("#login").show();
+        	$("#register").hide();
+        }
+        
         function login() {
         	var params = {};
     		params["id"] = $("#id_login").val();
@@ -110,6 +117,30 @@
     	}
         
         // -------------------------------------------------- 注册 --------------------------------------------------
+        var goRegister = function() {
+        	$("#login").hide();
+        	$("#register").show();
+        }
+        function register(){
+    		var params = {};
+    		params["id"] = $("#id").val();
+    		params["password"] = $("#password").val();
+    		params["passwordConfirm"] = $("#passwordConfirm").val();
+    		params["cmd"] = "add";
+    		params["name"] = $("#name").val();
+    		$.ajax({
+    			url: "http://haiyupeter.gicp.net:8080/child_share/UserServlet",
+    			data: params,
+    			type: 'post',
+    			dataType: 'script'
+			}).success(function(data){
+			});
+    	}
+    	
+    	var addUserInfo = function(data) {
+			alert(data.id);
+			alert(data.name);    	
+    	}
 	</script>
 	<style type="text/css">
 	    body {
@@ -118,26 +149,26 @@
 	        font-family: "微软雅黑";
 			font-size: 12px;
 	    }
-	    .list div {
+	    .shareList div {
 	        width: 300px;
 	        height: 210px;
 	    }
-	    .list div ul {
+	    .shareList div ul {
 	        width: 300px;
 	        height: 200px;
 	        padding: 0px;
 	        margin-top: 3px;        
 	    }
-	    .list div ul li{
+	    .shareList div ul li{
 	        list-style-type: none;
 	        float: left;
 	    }
-	    .list div ul li.text{
+	    .shareList div ul li.text{
 	        width: 92px;
 	        border-left:4px solid #3ddfdf;
 	        margin-left: 2px;
 	    }
-	    .list img {
+	    .shareList img {
 	        width: 200px;
 	    }
 	    
@@ -155,6 +186,10 @@
 			padding-left:20px;
 			height:20px;
 			FONT-SIZE: 12px;}
+			
+		#register {
+			display:none;
+		}
 	</style>
 	
 </head>
@@ -165,16 +200,23 @@
 		<h1>亲子卷轴</h1>
 	</div><!-- /header -->
 
-	<div data-role="content" data-theme="b">	
-		<div id="list" class="list"></div> 
+	<div id="content" data-role="content" data-theme="b">	
+		<div id="list" class="shareList"></div> 
 		<div id="photoDiv"></div>
 		<div id="login" class="list">
-			账号:<input id="id_login" name="id" class="username" type="text" onkeyup="if(event.keyCode===13){sub();}"/><br/>
-			密码:<input id="password_login" name="password" type="password" class="password" onkeyup="if(event.keyCode===13){sub();}"/><br/>
-			<input name="submit" type="button" onclick="sub();return false;" value="提交"></input>
+			账号:<input id="id_login" name="id" class="username" type="text"/><br/>
+			密码:<input id="password_login" name="password" type="password" class="password"/><br/>
+			<input name="submit" type="button" onclick="login();return false;" value="提交"></input>
+			<a href="javascript:;" onclick="goRegister();">注册</a>
 		</div>
 		<div id="register" class="list">
-			
+			账号:<input id="id" name="id" class="username" type="text"/><br/>
+			密码:<input id="password" name="password" type="password" class="password"/><br/>
+			密码确认:<input id="passwordConfirm" name="passwordConfirm" type="password" class="password"/><br/>
+			昵称:<input id="name" name="name" type="text"/><br/>
+			邮箱:<input id="email" type="text"/><br/>
+			<input name="submit" type="button" onclick="register();return false;" value="提交"></input>
+			<a href="javascript:;" onclick="goLogin();">登录</a>
 		</div>
 	</div><!-- /content -->
 	<div data-role="footer" data-theme="b" data-position="fixed">
