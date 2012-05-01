@@ -36,19 +36,20 @@
 		}
 		
 		var showList = function() {
-			$.getScript("http://haiyupeter.gicp.net:8080/child_share/ImageServlet?cmd=query&userId=haiyuchen").error(function(){
+			$.getScript("http://192.168.1.35:8080/child_share/ImageServlet?cmd=query&userId=haiyuchen").error(function(){
 				$(".list").html("服务器繁忙，请稍后重试！");
 			});
 		}
 		
 		var capturePhoto = function() {
 			//navigator.camera.getPicture(onPhotoDataSuccess, onFail, { quality: 50 });  
-			navigator.camera.getPicture(onPhotoURISuccess, onFail, { quality: 50, destinationType: Camera.DestinationType.FILE_URI });
+			navigator.camera.getPicture(onPhotoURISuccess, onFail, { quality: 50, destinationType: destinationType.FILE_URI });
 		}
 		function onPhotoURISuccess(imageURI) {  
     		var image = document.getElementById('photo');  
 			image.style.display = 'block'; 
-    		image.src = imageURI;  
+    		image.src = imageURI; 
+			uploadPhoto(imageURI);
 		}  
 		var onPhotoDataSuccess = function(imageData) {  
 	        var image = document.getElementById('photo');  
@@ -56,8 +57,30 @@
 	        image.src = "data:image/jpeg;base64," + imageData;  
     	}
 		var onFail = function(message) {
-			alert('Failed because: ' + message); 
+			console.error("An error has occurred while capture one photo. [ " + message + "]");
 		}  
+        function uploadPhoto(imageURI){
+            var options = new FileUploadOptions();
+            options.fileKey = "file";
+            options.fileName = imageURI.substr(imageURI.lastIndexOf('/') + 1);
+            options.mimeType = "image/jpeg";
+            var params = new Object();
+            params.value1 = "photo";
+            params.value2 = "描述";
+            
+            options.params = params;
+            
+            var ft = new FileTransfer();
+            ft.upload(imageURI, "http://192.168.1.35:8080/child_share/ImageServlet?cmd=add", onPhotoUploadSuccess, onPhotoUploadFail, options);
+        }
+        var onPhotoUploadSuccess = function(r){
+            console.log("Code = " + r.responseCode);
+            console.log("Response = " + r.response);
+            console.log("Sent = " + r.bytesSent);
+        }
+        var onPhotoUploadFail = function(error){
+            console.error("An error has occurred while photo upload. The error code = " + error.code);
+        }
 	</script>
 	<style type="text/css">
 	    body {
