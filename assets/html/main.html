@@ -46,10 +46,14 @@
 			navigator.camera.getPicture(onPhotoURISuccess, onFail, { quality: 50, destinationType: destinationType.FILE_URI });
 		}
 		function onPhotoURISuccess(imageURI) {  
-    		var image = document.getElementById('photo');  
-			image.style.display = 'block'; 
-    		image.src = imageURI; 
-			uploadPhoto(imageURI);
+    		var photoDiv = $('#photoDiv');  
+			var html = "";
+			html += '<input type="text" id="photo" value="' + imageURI + '"></input>';
+			html += '<img src="' + imageURI + '" width="50px;" height="100px;"></img>';
+			html += '<textarea name="textarea" id="description"></textarea>';
+			html += '<a href="#" data-role="button" onclick="uploadPhoto()">上传</a>';
+			photoDiv.html(html);
+			//uploadPhoto(imageURI);
 		}  
 		var onPhotoDataSuccess = function(imageData) {  
 	        var image = document.getElementById('photo');  
@@ -59,7 +63,8 @@
 		var onFail = function(message) {
 			console.error("An error has occurred while capture one photo. [ " + message + "]");
 		}  
-        function uploadPhoto(imageURI){
+        function uploadPhoto(){
+			var imageURI = $("#photo").val();
             var options = new FileUploadOptions();
             options.fileKey = "file";
             options.fileName = imageURI.substr(imageURI.lastIndexOf('/') + 1);
@@ -118,16 +123,15 @@
 <body onload="init();">
 <div data-role="page">
 
-	<div data-role="header" data-theme="b">
+	<div data-role="header" data-theme="b" data-position="fixed">
 		<h1>亲子卷轴</h1>
 	</div><!-- /header -->
 
 	<div data-role="content" data-theme="b">	
-		<img style="display:none;width:100;height:100px;" id="photo" src="" /> 
 		<div class="list"></div> 
-		<div id="log"></div>
+		<div id="photoDiv"></div>
 	</div><!-- /content -->
-	<div data-role="footer" data-theme="b">
+	<div data-role="footer" data-theme="b" data-position="fixed">
 		<div data-role="navbar">
 			<ul>
 				<li><a href="#" onclick="showList();" class="ui-btn-active">首页</a></li>
