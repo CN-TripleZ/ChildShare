@@ -64,6 +64,7 @@
             options.fileKey = "file";
             options.fileName = imageURI.substr(imageURI.lastIndexOf('/') + 1);
             options.mimeType = "image/jpeg";
+			options.chunkedMode = false;
             var params = new Object();
             params.value1 = "photo";
             params.value2 = "描述";
