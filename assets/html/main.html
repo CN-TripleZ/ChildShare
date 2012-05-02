@@ -50,14 +50,10 @@
 			navigator.camera.getPicture(onPhotoURISuccess, onFail, { quality: 50,  destinationType: destinationType.FILE_URI, sourceType: pictureSource.PHOTOLIBRARY });
 		}		
 		function onPhotoURISuccess(imageURI) {  
+			window.location.hash="#upload";
     		var photoDiv = $('#photoDiv');  
-			var html = "";
-			html += '<input type="text" id="photo" value="' + imageURI + '"></input>';
-			html += '<img src="' + imageURI + '" width="50px;" height="100px;"></img>';
-			html += '<textarea name="textarea" id="description"></textarea>';
-			html += '<a href="#" data-role="button" onclick="uploadPhoto()">上传</a>';
-			photoDiv.html(html);
-			//uploadPhoto(imageURI);
+			$("#photoPath").val(imageURI);
+			$("#photoImg").attr('src',imageURI);
 		}  
 		var onPhotoDataSuccess = function(imageData) {  
 	        var image = document.getElementById('photo');  
@@ -68,7 +64,7 @@
 			console.error("An error has occurred while capture one photo. [ " + message + "]");
 		}  
         function uploadPhoto(){
-			var imageURI = $("#photo").val();
+			var imageURI = $("#photoPath").val();
             var options = new FileUploadOptions();
             options.fileKey = "file";
             options.fileName = imageURI.substr(imageURI.lastIndexOf('/') + 1);
@@ -288,7 +284,12 @@
 	</div>
 
 	<div id="content" data-role="content" data-theme="b">	
-
+		<div id="photoDiv">
+			<input id="photoPath" type="text" id="photo" value=""></input><br/>
+			<img id="photoImg" src="" width="100%;" height="300px;"></img><br/>
+			<textarea name="textarea" id="description" ows=3></textarea><br/>
+			<a href="#" data-role="button" onclick="uploadPhoto()">上传</a>		
+		</div>
 	</div>
 	<div data-role="footer" data-theme="b" data-position="fixed">
 		<div data-role="navbar">
