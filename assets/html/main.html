@@ -4,6 +4,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>首页</title>
 	<link rel="stylesheet" href="../css/jquery.mobile-1.1.0.css" />
+	<script type="text/javascript" src="../js/constants.js"></script>
 	<script type="text/javascript" src="../js/cordova-1.7.0rc1.js"></script>
 	<script type="text/javascript" src="../js/jquery-1.7.2.js"></script>
 	<script type="text/javascript" src="../js/jquery.mobile-1.1.0.js"></script>
@@ -11,7 +12,6 @@
 		var pictureSource,destinationType;
 		function init() {
     		document.addEventListener("deviceready", onDeviceReady, true);
-    		//showList();
 		}
 		var onDeviceReady = function() {
 			pictureSource=navigator.camera.PictureSourceType;  
@@ -38,15 +38,17 @@
 		var showList = function() {
 			$("#content div").hide();
 			$("#list").show();
-			$.getScript("http://haiyupeter.gicp.net:8080/child_share/ImageServlet?cmd=query&userId=haiyuchen").error(function(){
+			$.getScript(webContext + "/ImageServlet?cmd=query&userId=haiyuchen").error(function(){
 				$("#list").html("服务器繁忙，请稍后重试！");
 			});
 		}
 		
-		var capturePhoto = function() {
-			//navigator.camera.getPicture(onPhotoDataSuccess, onFail, { quality: 50 });  
+		var capturePhoto = function() { 
 			navigator.camera.getPicture(onPhotoURISuccess, onFail, { quality: 50, destinationType: destinationType.FILE_URI });
 		}
+		var selectPic = function() {
+			navigator.camera.getPicture(onPhotoURISuccess, onFail, { quality: 50,  destinationType: destinationType.FILE_URI, sourceType: pictureSource.PHOTOLIBRARY });
+		}		
 		function onPhotoURISuccess(imageURI) {  
     		var photoDiv = $('#photoDiv');  
 			var html = "";
@@ -79,7 +81,7 @@
             options.params = params;
             
             var ft = new FileTransfer();
-            ft.upload(imageURI, "http://haiyupeter.gicp.net:8080/child_share/ImageServlet?cmd=add", onPhotoUploadSuccess, onPhotoUploadFail, options);
+            ft.upload(imageURI, webContext + "/ImageServlet?cmd=add", onPhotoUploadSuccess, onPhotoUploadFail, options);
         }
         var onPhotoUploadSuccess = function(r){
             console.log("Code = " + r.responseCode);
@@ -92,18 +94,15 @@
         
         
         // -------------------------------------------------- 登录 --------------------------------------------------
-        var goLogin = function() {
-        	$("#login").show();
-        	$("#register").hide();
-        }
         
         function login() {
+			window.location.hash="#main";
         	var params = {};
     		params["id"] = $("#id_login").val();
     		params["password"] = $("#password_login").val();
     		params["cmd"] = "query";
     		$.ajax({
-    			url: "http://haiyupeter.gicp.net:8080/child_share/UserServlet",
+    			url: webContext + "/UserServlet",
     			data: params,
     			dataType: 'script'
 			}).success(function(data){
@@ -117,10 +116,6 @@
     	}
         
         // -------------------------------------------------- 注册 --------------------------------------------------
-        var goRegister = function() {
-        	$("#login").hide();
-        	$("#register").show();
-        }
         function register(){
     		var params = {};
     		params["id"] = $("#id").val();
@@ -129,7 +124,7 @@
     		params["cmd"] = "add";
     		params["name"] = $("#name").val();
     		$.ajax({
-    			url: "http://haiyupeter.gicp.net:8080/child_share/UserServlet",
+    			url: webContext + "/UserServlet",
     			data: params,
     			type: 'post',
     			dataType: 'script'
@@ -194,42 +189,159 @@
 	
 </head>
 <body onload="init();">
-<div data-role="page">
+<!-- 注册页面开始 -->
+<div data-role="page" id="register">
+	<div data-role="header" data-theme="b" data-position="fixed">
+		<h1>用户注册</h1>
+	</div>
+	<div id="content" data-role="content" data-theme="b">
+		<input id="id" name="id" class="username" type="text" placeholder="账号"/><br/>
+		<input id="password" name="password" type="password" class="password" placeholder="密码"/><br/>
+		<input id="passwordConfirm" name="passwordConfirm" type="password" class="password" placeholder="密码确认"/><br/>
+		<input id="name" name="name" type="text" placeholder="呢称"/><br/>
+		<input id="email" type="text" placeholder="邮箱"/><br/>
+		<input name="submit" type="button" onclick="register();return false;" value="提交"></input>
+		<a href="javascript:window.location.hash='#login';">登录</a>
+	</div>
+</div>
+<!-- 注册页面结束 -->
 
+<!-- 登陆页面开始 -->
+<div data-role="page" id="login">
+	<div data-role="header" data-theme="b" data-position="fixed">
+		<h1>登陆</h1>
+	</div>
+	<div id="content" data-role="content" data-theme="b">
+		<input id="id_login" name="id" class="username" type="text" placeholder="账号"/><br/>
+		<input id="password_login" name="password" type="password" class="password" placeholder="密码"/><br/>
+		<input name="submit" type="button" onclick="login();return false;" value="提交"></input>
+		<a href="javascript:window.location.hash='#register';">注册</a>
+	</div>
+</div>
+<!-- 登陆页面结束 -->
+
+<!-- 首页开始 -->
+<div data-role="page" id="main">
 	<div data-role="header" data-theme="b" data-position="fixed">
 		<h1>亲子卷轴</h1>
-	</div><!-- /header -->
+	</div>
 
 	<div id="content" data-role="content" data-theme="b">	
-		<div id="list" class="shareList"></div> 
-		<div id="photoDiv"></div>
-		<div id="login" class="list">
-			账号:<input id="id_login" name="id" class="username" type="text"/><br/>
-			密码:<input id="password_login" name="password" type="password" class="password"/><br/>
-			<input name="submit" type="button" onclick="login();return false;" value="提交"></input>
-			<a href="javascript:;" onclick="goRegister();">注册</a>
-		</div>
-		<div id="register" class="list">
-			账号:<input id="id" name="id" class="username" type="text"/><br/>
-			密码:<input id="password" name="password" type="password" class="password"/><br/>
-			密码确认:<input id="passwordConfirm" name="passwordConfirm" type="password" class="password"/><br/>
-			昵称:<input id="name" name="name" type="text"/><br/>
-			邮箱:<input id="email" type="text"/><br/>
-			<input name="submit" type="button" onclick="register();return false;" value="提交"></input>
-			<a href="javascript:;" onclick="goLogin();">登录</a>
-		</div>
-	</div><!-- /content -->
+
+	</div>
 	<div data-role="footer" data-theme="b" data-position="fixed">
 		<div data-role="navbar">
 			<ul>
-				<li><a href="#" onclick="showList();" class="ui-btn-active">首页</a></li>
-				<li><a href="#">热门</a></li>
-				<li><a href="#" onclick="capturePhoto()">拍照</a></li>
-				<li><a href="#">消息</a></li>
-				<li><a href="#">个人</a></li>
+				<li><a href="#main" onclick="showList();" class="ui-btn-active">首页</a></li>
+				<li><a href="#hot">热门</a></li>
+				<li><a href="#photo">拍照</a></li>
+				<li><a href="#message">消息</a></li>
+				<li><a href="#personal">个人</a></li>
 			</ul>
-		</div><!-- /navbar -->
-	</div><!-- /footer -->
-</div><!-- /page -->
+		</div>
+	</div>
+</div>
+<!-- 首页结束 -->
+
+<!-- 热门开始 -->
+<div data-role="page" id="hot">
+	<div data-role="header" data-theme="b" data-position="fixed">
+		<h1>热门</h1>
+	</div>
+
+	<div id="content" data-role="content" data-theme="b">	
+
+	</div>
+	<div data-role="footer" data-theme="b" data-position="fixed">
+		<div data-role="navbar">
+			<ul>
+				<li><a href="#main" onclick="showList();">首页</a></li>
+				<li><a href="#hot" class="ui-btn-active">热门</a></li>
+				<li><a href="#photo">拍照</a></li>
+				<li><a href="#message">消息</a></li>
+				<li><a href="#personal">个人</a></li>
+			</ul>
+		</div>
+	</div>
+</div>
+<!-- 热门结束 -->
+
+<!-- 照片开始 -->
+<div data-role="dialog" id="photo">
+	<div data-role="header" data-theme="b">
+		<h1>请选择</h1>
+	</div>
+	<div data-role="content" data-theme="b">
+		<a href="#" data-role="button" data-rel="dialog" data-transition="slidedown" data-theme="b" onclick="capturePhoto();">照相</a>
+		<a href="#" data-role="button" data-rel="dialog" data-transition="slidedown" data-theme="b" onclick="selectPic();">图片</a> 
+	</div>
+</div>
+<div data-role="page" id="upload">
+	<div data-role="header" data-theme="b" data-position="fixed">
+		<h1>上传照片</h1>
+	</div>
+
+	<div id="content" data-role="content" data-theme="b">	
+
+	</div>
+	<div data-role="footer" data-theme="b" data-position="fixed">
+		<div data-role="navbar">
+			<ul>
+				<li><a href="#main" onclick="showList();">首页</a></li>
+				<li><a href="#hot">热门</a></li>
+				<li><a href="#photo" class="ui-btn-active">拍照</a></li>
+				<li><a href="#message">消息</a></li>
+				<li><a href="#personal">个人</a></li>
+			</ul>
+		</div>
+	</div>
+</div>
+<!-- 照片结束 -->
+
+<!-- 消息开始 -->
+<div data-role="page" id="message">
+	<div data-role="header" data-theme="b" data-position="fixed">
+		<h1>消息</h1>
+	</div>
+
+	<div id="content" data-role="content" data-theme="b">	
+
+	</div>
+	<div data-role="footer" data-theme="b" data-position="fixed">
+		<div data-role="navbar">
+			<ul>
+				<li><a href="#main" onclick="showList();">首页</a></li>
+				<li><a href="#hot">热门</a></li>
+				<li><a href="#photo">拍照</a></li>
+				<li><a href="#message" class="ui-btn-active">消息</a></li>
+				<li><a href="#personal">个人</a></li>
+			</ul>
+		</div>
+	</div>
+</div>
+<!-- 消息结束 -->
+
+<!-- 个人开始 -->
+<div data-role="page" id="personal">
+	<div data-role="header" data-theme="b" data-position="fixed">
+		<h1>消息</h1>
+	</div>
+
+	<div id="content" data-role="content" data-theme="b">	
+
+	</div>
+	<div data-role="footer" data-theme="b" data-position="fixed">
+		<div data-role="navbar">
+			<ul>
+				<li><a href="#main" onclick="showList();">首页</a></li>
+				<li><a href="#hot">热门</a></li>
+				<li><a href="#photo">拍照</a></li>
+				<li><a href="#message">消息</a></li>
+				<li><a href="#personal" class="ui-btn-active">个人</a></li>
+			</ul>
+		</div>
+	</div>
+</div>
+<!-- 个人结束 -->
 </body>
 </html>
