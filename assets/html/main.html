@@ -217,6 +217,33 @@
 			alert(data.id);
 			alert(data.name);    	
     	}
+    	
+    	// ------------------------------------------------------   热门   ---------------------------------------------------
+    	function showHotImages() {
+    		$.getScript(webContext + "/ImageServlet?cmd=hot").error(function(){
+	            $("#list").html("服务器繁忙，请稍后重试！");
+	        });
+    	}
+    	function getHotImages(result) {
+	        if (result.ret !== 0) {
+	            alert("服务器繁忙，请稍后重试");
+	        }
+	        var data = result.data;
+	        var html = [];
+	        for (var i = 0; i < data.length; i++) {
+	            var isFirst = false;
+	            if (i === 0) {
+	                html.push('<div class="item first">\
+	                               <img class="first" src="' + data[i].path + '">\
+	                           </div>');
+	            } else {
+	                html.push('<div class="item">\
+	                               <img src="' + data[i].path + '">\
+	                           </div>');
+	            }
+	        }
+	        $("#hot_content").html(html.join(''));
+	    }
 	</script>
 	<style type="text/css">
 	    body {
@@ -247,6 +274,11 @@
 	    .shareList img {
 	        width: 200px;
 	    }
+	    
+	    #hot .item { float:left; }
+        #hot .item { width:90px; height:90px; margin-right:5px;margin-bottom:5px; } 
+        #hot .item img { width:90px; height:90px; }
+        #hot div.first, #hot .item img.first { width:180px;height:180px; }
 	</style>
 	
 </head>
@@ -297,7 +329,7 @@
 		<div data-role="navbar">
 			<ul>
 				<li><a href="#main" onclick="showList();" class="ui-btn-active">首页</a></li>
-				<li><a href="#hot">热门</a></li>
+				<li><a href="#hot" onclick="showHotImages();">热门</a></li>
 				<li><a href="#photo">拍照</a></li>
 				<li><a href="#message">消息</a></li>
 				<li><a href="#personal">个人</a></li>
@@ -313,7 +345,7 @@
 		<h1>热门</h1>
 	</div>
 
-	<div data-role="content" data-theme="b">	
+	<div id="hot_content" data-role="content" data-theme="b">	
 
 	</div>
 	<div data-role="footer" data-theme="b" data-position="fixed">
@@ -357,7 +389,7 @@
 		<div data-role="navbar">
 			<ul>
 				<li><a href="#main" onclick="showList();">首页</a></li>
-				<li><a href="#hot">热门</a></li>
+				<li><a href="#hot" onclick="showHotImages();">热门</a></li>
 				<li><a href="#photo" class="ui-btn-active">拍照</a></li>
 				<li><a href="#message">消息</a></li>
 				<li><a href="#personal">个人</a></li>
@@ -380,7 +412,7 @@
 		<div data-role="navbar">
 			<ul>
 				<li><a href="#main" onclick="showList();">首页</a></li>
-				<li><a href="#hot">热门</a></li>
+				<li><a href="#hot" onclick="showHotImages();">热门</a></li>
 				<li><a href="#photo">拍照</a></li>
 				<li><a href="#message" class="ui-btn-active">消息</a></li>
 				<li><a href="#personal">个人</a></li>
@@ -403,7 +435,7 @@
 		<div data-role="navbar">
 			<ul>
 				<li><a href="#main" onclick="showList();">首页</a></li>
-				<li><a href="#hot">热门</a></li>
+				<li><a href="#hot" onclick="showHotImages();">热门</a></li>
 				<li><a href="#photo">拍照</a></li>
 				<li><a href="#message">消息</a></li>
 				<li><a href="#personal" class="ui-btn-active">个人</a></li>
