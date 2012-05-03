@@ -139,7 +139,7 @@
 			options.chunkedMode = false;
             var params = new Object();
             params.userId = CookieUtil.get('userid');
-            params.description = $("#description").val();
+            params.description = encodeURIComponent($("#description").val());
             
             options.params = params;
             
