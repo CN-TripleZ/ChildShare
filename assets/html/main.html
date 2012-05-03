@@ -1,8 +1,8 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE html>
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>首页</title>
+<meta charset="UTF-8">
+<title>亲子卷轴</title>
 	<link rel="stylesheet" href="../css/jquery.mobile-1.1.0.css" />
 	<script type="text/javascript" src="../js/constants.js"></script>
 	<script type="text/javascript" src="../js/cordova-1.7.0rc1.js"></script>
@@ -138,14 +138,13 @@
             options.mimeType = "image/jpeg";
 			options.chunkedMode = false;
             var params = new Object();
-            params.value1 = "photo";
-            params.value2 = "描述";
+            params.userId = CookieUtil.get('userid');
+            params.description = $("#description").val();
             
             options.params = params;
             
             var ft = new FileTransfer();
-            var userId = CookieUtil.get('userid');
-            ft.upload(imageURI, webContext + "/ImageServlet?cmd=add&userId=" + userId, onPhotoUploadSuccess, onPhotoUploadFail, options);
+            ft.upload(imageURI, webContext + "/ImageServlet?cmd=add", onPhotoUploadSuccess, onPhotoUploadFail, options);
         }
         var onPhotoUploadSuccess = function(r){
             console.log("Code = " + r.responseCode);
@@ -191,6 +190,7 @@
         		var name = result.data.name;
         		CookieUtil.set('userid', id);
         		CookieUtil.set('username', name);
+        		$("#main h1").html(name + " - 亲子卷轴");
         		window.location.hash="#main";
         		showList();
         	}
@@ -255,12 +255,12 @@
 <!-- 登陆页面开始 -->
 <div data-role="page" id="login">
 	<div data-role="header" data-theme="b" data-position="fixed">
-		<h1>登陆</h1>
+		<h1>亲子卷轴</h1>
 	</div>
 	<div data-role="content" data-theme="b">
-		<input id="id_login" name="id" class="username" type="text" placeholder="账号"/><br/>
-		<input id="password_login" name="password" type="password" class="password" placeholder="密码"/><br/>
-		<a href="#" data-role="button"  data-theme="b" onclick="login();">登陆</a>
+		<input id="id_login" type="text" placeholder="账号"/><br/>
+		<input id="password_login" type="password" placeholder="密码"/><br/>
+		<a href="#" data-role="button" data-theme="b" onclick="login();">登陆</a>
 		<a href="#register">返回注册</a>
 	</div>
 </div>
@@ -269,15 +269,15 @@
 <!-- 注册页面开始 -->
 <div data-role="page" id="register">
 	<div data-role="header" data-theme="b" data-position="fixed">
-		<h1>用户注册</h1>
+		<h1>亲子卷轴</h1>
 	</div>
 	<div data-role="content" data-theme="b">
-		<input id="id" name="id" class="username" type="text" placeholder="账号"/><br/>
-		<input id="password" name="password" type="password" class="password" placeholder="密码"/><br/>
-		<input id="passwordConfirm" name="passwordConfirm" type="password" class="password" placeholder="密码确认"/><br/>
-		<input id="name" name="name" type="text" placeholder="呢称"/><br/>
+		<input id="id" type="text" placeholder="账号"/><br/>
+		<input id="password" type="password" placeholder="密码"/><br/>
+		<input id="passwordConfirm" type="password" placeholder="密码确认"/><br/>
+		<input id="name" type="text" placeholder="呢称"/><br/>
 		<input id="email" type="text" placeholder="邮箱"/><br/>
-		<a href="#" data-role="button"  data-theme="b" onclick="register();">提交注册</a>
+		<a href="#" data-role="button" data-theme="b" onclick="register();">注册</a>
 		<a href="#login">返回登录</a>
 	</div>
 </div>
