@@ -10,10 +10,31 @@
 	<script type="text/javascript" src="../js/jquery.mobile-1.1.0.js"></script>
 	<script type="text/javascript">
 	
+		var ChildObj = {
+				getPhotoList : function (userId, callback) {
+					if (callback && typeof callback == 'function') {
+						window.getPhotos = callback;
+					}
+					$.getScript(webContext + "/ImageServlet?cmd=query&userId=" + userId).error(function(){
+						$("#list").html("服务器繁忙，请稍后重试！");
+					});
+				}
+		};
+		
+		var UploadImgObj = {
+				
+				getUploadImage : function () {
+					return $j("#photoImg")[0];
+				},
+				// 相片选择后回调方法
+				imgSelectedCallback : function() {
+				}
+		};
+	
 		/**  
 		* cookie管理对象  
 		*/  
-		CookieUtil={   
+		var CookieUtil={   
 		   /**  
 		    * 设置Cookie  
 		    * @param {string} 设置cookie的名称  
@@ -102,12 +123,18 @@
 		}
 		
 		var showList = function() {
-			$("#content div").hide();
-			$("#list").show();
+			//$("#content div").hide();
+			//$("#list").show();
+			window.location.hash="#main";
+			var userId = CookieUtil.get("userid");
+			// 展现
+			ChildObj.getPhotoList(userId);
+			/*
 			var userId = CookieUtil.get("userid");
 			$.getScript(webContext + "/ImageServlet?cmd=query&userId=" + userId).error(function(){
 				$("#list").html("服务器繁忙，请稍后重试！");
 			});
+			*/
 		}
 		
 		var capturePhoto = function() { 
@@ -121,12 +148,15 @@
     		var photoDiv = $('#photoDiv');  
 			$("#photoPath").val(imageURI);
 			$("#photoImg").attr('src',imageURI);
+			UploadImgObj.imgSelectedCallback();
 		}  
+		/*
 		var onPhotoDataSuccess = function(imageData) {  
 	        var image = document.getElementById('photo');  
 	        image.style.display = 'block';  
 	        image.src = "data:image/jpeg;base64," + imageData;  
     	}
+		*/
 		var onFail = function(message) {
 			console.error("An error has occurred while capture one photo. [ " + message + "]");
 		}  
@@ -150,6 +180,7 @@
             console.log("Code = " + r.responseCode);
             console.log("Response = " + r.response);
             console.log("Sent = " + r.bytesSent);
+            window.location.hash="#main";
         }
         var onPhotoUploadFail = function(error){
             console.error("An error has occurred while photo upload. The error code = " + error.code);
@@ -234,7 +265,7 @@
 	        });
     	}
     	function getHotImages(result) {
-	        if (result.ret !== 0) {
+	        if (result.ret !== '0') {
 	            alert("服务器繁忙，请稍后重试");
 	        }
 	        var data = result.data;
